@@ -5,14 +5,23 @@ package require textutil::expander
 if {$argc < 2} {
   puts "An simple Tcl based macro"
   puts "gmcr <Args JSON file> <Input file>"
+  puts "gmcr - <Input file> # Read from stdin"
   exit
 }
 
 set args [lindex $argv 0]
-set fd [open $args "r"]
-set args [read $fd]
+
+if [expr {$args eq {-}}] {
+  set args {}
+  while {[gets stdin line] > 0} {
+    append args $line
+  }
+} else {
+  set fd [open $args r]
+  set args [read $fd]
+  close $fd
+}
 set args [::json::json2dict $args]
-close $fd
 
 textutil::expander _exp
 _exp setbrackets "#{{" "}}#"
@@ -23,9 +32,9 @@ _exp cpop expand
 
 proc evalfunc {in} {
   set _args [_exp cget _args]
-  proc _def {name value} {_exp cset $name $value}
-  proc _undef {name} {_exp cset $name {}}
-  proc _getdef {name} {_exp cget $name}
+  proc _def {name value} {_exp cset "$name" "$value"}
+  proc _undef {name} {_exp cset "$name" {}}
+  proc _getdef {name} {_exp cget "$name"}
   proc _print {data} {_exp cappend "$data"}
   proc _println {data} {_print "$data"; _print "\n" }
 
@@ -46,7 +55,7 @@ proc evalfunc {in} {
 _exp evalcmd evalfunc
 
 set input [lindex $argv 1]
-set fd [open $input "r"]
+set fd [open $input r]
 set input [read $fd]
 close $fd
 
