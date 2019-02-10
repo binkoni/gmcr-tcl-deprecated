@@ -17,7 +17,7 @@ set args [::json::json2dict $args]
 close $fd
 
 textutil::expander exp
-exp setbrackets "{{" "}}"
+exp setbrackets "#{{" "}}#"
 
 exp cpush expand
 exp cset args $args
