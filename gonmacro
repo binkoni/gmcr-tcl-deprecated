@@ -1,0 +1,41 @@
+#!/usr/bin/env tclsh
+package require json
+package require textutil::expander
+
+if {$argc < 2} {
+  puts "macro.tcl <Args JSON file> <Input file>"
+  exit
+}
+
+puts [lindex $argv 0]
+puts [lindex $argv 1]
+
+set args [lindex $argv 0]
+set fd [open $args "r"]
+set args [read $fd]
+set args [::json::json2dict $args]
+close $fd
+
+textutil::expander expander
+expander setbrackets "{{" "}}"
+expander cpush "expand"
+expander cset args $args
+expander cpop "expand"
+
+proc evalfunc {incode} {
+  set args [expander cget args]
+  foreach arg [dict keys $args] {
+    set argval [dict get $args $arg]
+    append outcode "set $arg {$argval}\n"
+  }
+  append outcode $incode
+  return [eval $outcode]
+}
+expander evalcmd evalfunc
+
+set input [lindex $argv 1]
+set fd [open $input "r"]
+set input [read $fd]
+close $fd
+
+puts [expander expand $input]
