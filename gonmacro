@@ -28,6 +28,7 @@ proc evalfunc {incode} {
   proc def {name value} {exp cset $name $value}
   proc undef {name} {exp cset $name {}}
   proc getdef {name} {exp cget $name}
+  proc write {data} {exp cappend $data; exp ctopandclear}
 
   foreach arg [dict keys $args] {
     set argval [dict get $args $arg]
