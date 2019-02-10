@@ -4,7 +4,7 @@ package require textutil::expander
 
 if {$argc < 2} {
   puts "An simple Tcl based macro"
-  puts "gonmacro <Args JSON file> <Input file>"
+  puts "gmcr <Args JSON file> <Input file>"
   exit
 }
 
