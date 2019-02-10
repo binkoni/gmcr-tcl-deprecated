@@ -18,18 +18,26 @@ close $fd
 
 textutil::expander exp
 exp setbrackets "{{" "}}"
-exp cpush "expand"
+
+exp cpush expand
 exp cset args $args
-exp cpop "expand"
+exp cpop expand
+
 proc evalfunc {incode} {
   set args [exp cget args]
+  proc def {name value} {exp cset $name $value}
+  proc undef {name} {exp cset $name {}}
+  proc getdef {name} {exp cget $name}
+
   foreach arg [dict keys $args] {
     set argval [dict get $args $arg]
     append outcode "set $arg {$argval}\n"
   }
+
   append outcode $incode
   return [eval $outcode]
 }
+
 exp evalcmd evalfunc
 
 set input [lindex $argv 1]
