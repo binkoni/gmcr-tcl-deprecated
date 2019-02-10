@@ -16,14 +16,13 @@ set args [read $fd]
 set args [::json::json2dict $args]
 close $fd
 
-textutil::expander expander
-expander setbrackets "{{" "}}"
-expander cpush "expand"
-expander cset args $args
-expander cpop "expand"
-
+textutil::expander exp
+exp setbrackets "{{" "}}"
+exp cpush "expand"
+exp cset args $args
+exp cpop "expand"
 proc evalfunc {incode} {
-  set args [expander cget args]
+  set args [exp cget args]
   foreach arg [dict keys $args] {
     set argval [dict get $args $arg]
     append outcode "set $arg {$argval}\n"
@@ -31,11 +30,11 @@ proc evalfunc {incode} {
   append outcode $incode
   return [eval $outcode]
 }
-expander evalcmd evalfunc
+exp evalcmd evalfunc
 
 set input [lindex $argv 1]
 set fd [open $input "r"]
 set input [read $fd]
 close $fd
 
-puts [expander expand $input]
+puts [exp expand $input]
