@@ -3,12 +3,10 @@ package require json
 package require textutil::expander
 
 if {$argc < 2} {
-  puts "macro.tcl <Args JSON file> <Input file>"
+  puts "An simple Tcl based macro"
+  puts "gonmacro <Args JSON file> <Input file>"
   exit
 }
-
-puts [lindex $argv 0]
-puts [lindex $argv 1]
 
 set args [lindex $argv 0]
 set fd [open $args "r"]
@@ -16,34 +14,40 @@ set args [read $fd]
 set args [::json::json2dict $args]
 close $fd
 
-textutil::expander exp
-exp setbrackets "#{{" "}}#"
+textutil::expander _exp
+_exp setbrackets "#{{" "}}#"
 
-exp cpush expand
-exp cset args $args
-exp cpop expand
+_exp cpush expand
+_exp cset _args $args
+_exp cpop expand
 
-proc evalfunc {incode} {
-  set args [exp cget args]
-  proc def {name value} {exp cset $name $value}
-  proc undef {name} {exp cset $name {}}
-  proc getdef {name} {exp cget $name}
-  proc write {data} {exp cappend $data; exp ctopandclear}
+proc evalfunc {in} {
+  set _args [_exp cget _args]
+  proc _def {name value} {_exp cset $name $value}
+  proc _undef {name} {_exp cset $name {}}
+  proc _getdef {name} {_exp cget $name}
+  proc _print {data} {_exp cappend "$data"}
+  proc _println {data} {_print "$data"; _print "\n" }
 
-  foreach arg [dict keys $args] {
-    set argval [dict get $args $arg]
-    append outcode "set $arg {$argval}\n"
+  foreach arg [dict keys $_args] {
+    set argval [dict get $_args $arg]
+    append _out "set $arg {$argval}\n"
   }
 
-  append outcode $incode
-  return [eval $outcode]
+  append _out $in
+
+  unset arg
+  unset argval
+  unset in
+
+  return [eval $_out]
 }
 
-exp evalcmd evalfunc
+_exp evalcmd evalfunc
 
 set input [lindex $argv 1]
 set fd [open $input "r"]
 set input [read $fd]
 close $fd
 
-puts [exp expand $input]
+puts [_exp expand $input]
