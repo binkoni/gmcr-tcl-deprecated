@@ -3,7 +3,7 @@ package require json
 package require textutil::expander
 
 if {$argc < 2} {
-  puts "An simple Tcl based macro"
+  puts "A simple Tcl based macro"
   puts "gmcr <Args JSON file> <Input file>"
   puts "gmcr - <Input file> # Read from stdin"
   exit
