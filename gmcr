@@ -45,8 +45,7 @@ proc evalfunc {in} {
 
   append _out $in
 
-  unset arg
-  unset argval
+  if {[info exists arg]} {unset arg; unset argval}
   unset in
 
   return [eval $_out]
